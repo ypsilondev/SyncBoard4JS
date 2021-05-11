@@ -115,7 +115,7 @@ function draw(e) {
 
     ctx.beginPath();
 
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.strokeStyle = `rgba(${currentLine.color.R}, ${currentLine.color.G}, ${currentLine.color.B}, ${currentLine.color.A})`;
 
@@ -138,14 +138,14 @@ function paintHistory() {
 
 function paintLine(line) {
     if (line == undefined) return;
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.strokeStyle = `rgba(${line.color.R}, ${line.color.G}, ${line.color.B}, ${line.color.A})`;
     // ctx.moveTo(line.points[0].x, line.points[0].y);
     let lastPos = {}
     for (let point of line.points) {
         ctx.beginPath();
-        ctx.lineWidth = 5 * point.p;
+        ctx.lineWidth = 3 * point.p;
         if (lastPos !== {}) {
             ctx.lineTo(lastPos.x, lastPos.y);
         }
