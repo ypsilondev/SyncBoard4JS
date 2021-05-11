@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SyncBoard</title>
+
+    <link rel="stylesheet" href="css/halfmoon-variables.min.css">
+    <script>
+        const baseURL = "https://syncboard.shirkanesi.com:5000/";
+    </script>
+    <style>
+        html, body {margin: 0; height: 100%; overflow: hidden}
+    </style>
+</head>
+<body data-dm-shortcut-enabled="true" data-sidebar-shortcut-enabled="true"
+      style="-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;"
+      unselectable="on"
+      onselectstart="return false;"
+>
+
+<div class="page-wrapper with-navbar with-sidebar with-navbar-fixed-bottom" data-sidebar-type="overlayed-sm-and-down">
+    <!-- Sticky alerts (toasts), empty container -->
+    <div class="sticky-alerts"></div>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="#" class="navbar-brand">SyncBoard</a>
+        <span class="navbar-text text-monospace">for JS</span>
+        <ul class="navbar-nav d-none d-md-flex">
+            <li class="nav-item active"><a href="#" class="nav-link">Room: <span id="room"></span></a></li>
+        </ul>
+    </nav>
+    <!-- Sidebar overlay -->
+    <div class="sidebar-overlay" onclick="halfmoon.toggleSidebar()"></div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        _
+    </div>
+    <!-- Content wrapper -->
+    <div class="content-wrapper">
+        <canvas id="canvas" width="800" height="600"></canvas>
+    </div>
+    <!-- Navbar fixed bottom -->
+    <nav class="navbar navbar-fixed-bottom">
+        ...
+    </nav>
+</div>
+
+<script src="js/halfmoon.min.js"></script>
+<script src="js/socket.io.min.js"></script>
+<script src="sync.js"></script>
+</body>
+</html>
