@@ -1,3 +1,5 @@
+const debug = true;
+
 socket.on("connect", () => {
     if (socket.disconnected) {
         alert("Could not connect to the server, retrying...");
@@ -8,7 +10,7 @@ socket.on("connect", () => {
 });
 
 socket.on("cmd", (data) => {
-    console.log(data);
+    log("cmd", data);
     if (data.hasOwnProperty("success")) {
         if (data.success === true) {
             document.getElementById('room').innerText = room;
@@ -17,7 +19,7 @@ socket.on("cmd", (data) => {
         }
     } else if (data.hasOwnProperty("action")) {
         if (data.action === "sendBoard") {
-            socket.emit("init-sync", getHistory());
+            socket.emit("init-sync", board.getHistory());
         }
     } else if (data.hasOwnProperty("token")) {
         room = data.token;
@@ -27,24 +29,35 @@ socket.on("cmd", (data) => {
 });
 
 socket.on("init-sync", (data) => {
-    replaceHistory(data);
+    log("init-sync", data);
+    board.replaceHistory(data);
 })
 
 socket.on("sync", (data) => {
-    for (let line of data) {
-        console.log(line);
-        history[line.guid] = line;
-        paintLine(line);
+    log("sync", data);
+    for (let transportObject of data) {
+        let line = Line.fromTransportObject(transportObject);
+        board.history[line.guid] = line;
+        board.drawPath(line);
     }
 });
 
 socket.on("erase", (data) => {
-    console.log(data);
+    log("erase", data);
     for (let guid of data) {
-        history[guid] = undefined;
+        board.history[guid] = undefined;
     }
-    clearCanvas();
-    paintHistory();
+    board.clear();
+    board.drawBoard();
 });
+
+function log(channel, data) {
+    if (debug) {
+        console.debug({
+            on: channel,
+            data: data
+        });
+    }
+}
 
 socket.connect();

@@ -1,8 +1,11 @@
 const socket = io(baseURL);
 let room = "";
+let scale = 1;
 
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
+
+const board = new Board(canvas);
 
 function connect() {
     room = prompt("enter room id");
@@ -10,14 +13,15 @@ function connect() {
         action: "join",
         payload: room,
     }));
-    clearCanvas();
-    history = {};
+    board.clear();
+    board.history = {};
 }
 
 function create() {
     socket.emit("cmd", JSON.stringify({action: "create"}))
-    clearCanvas();
-    history = {};
+    board.endLine();
+    board.history = {};
+    board.clear();
 }
 
 function status(msg, failed) {
@@ -48,32 +52,19 @@ function successAlert(msg) {
 
 function resizeCanvas() {
     // Make it visually fill the positioned parent
-    canvas.style.width ='100%';
-    canvas.style.height='100%';
+    // canvas.style.transform = `scale(${1 / scale})`;
+    canvas.style.width = 100 /* * scale */ + '%';
+    canvas.style.height = 100 /* * scale */ + '%';
     // ...then set the internal size to match
-    canvas.width  = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-}
-
-function getHistory() {
-    let result = [];
-    for (let guid in Object.keys(history))
-        result.push(history[guid]);
-    return result;
-}
-
-function replaceHistory(newHistory) {
-    history = {};
-    for (let line of newHistory)
-        history[line.guid] = line;
-    clearCanvas();
-    paintHistory();
+    canvas.width  = canvas.offsetWidth /** scale*/;
+    canvas.height = canvas.offsetHeight /** scale*/;
 }
 
 function urlReachable(url, callback) {
     let request = new XMLHttpRequest;
-    request.open('GET', url, true);
+    request.open('GET', url + '?' + new Date().getTime(), true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    request.setRequestHeader('Cache-Control', 'no-cache');
     request.setRequestHeader('Accept', '*/*');
     request.onprogress = function(event) {
         let status = event.target.status;
@@ -90,6 +81,30 @@ function urlReachable(url, callback) {
     request.send('');
 }
 
+function reloadWithParameter(key, value) {
+    key = encodeURIComponent(key);
+    value = encodeURIComponent(value);
+
+    // kvp looks like ['key1=value1', 'key2=value2', ...]
+    let kvp = document.location.search.substr(1).split('&');
+    let i=0;
+
+    for(; i<kvp.length; i++){
+        if (kvp[i].startsWith(key + '=')) {
+            let pair = kvp[i].split('=');
+            pair[1] = value;
+            kvp[i] = pair.join('=');
+            break;
+        }
+    }
+
+    if(i >= kvp.length){
+        kvp[kvp.length] = [key,value].join('=');
+    }
+
+    document.location.search = kvp.join('&');
+}
+
 function forceUpdate() {
     urlReachable(location.toString(), reachable => {
         if (!reachable) {
@@ -98,11 +113,17 @@ function forceUpdate() {
             navigator.serviceWorker.ready.then(registration => {
                 if (registration.active) {
                     registration.active.postMessage("clear-cache");
+                    reloadWithParameter("lastAccessed", new Date().getTime());
                 }
-            }).then(() => window.location.reload());
+            });
         }
     })
 }
 
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener("load", resizeCanvas);
+window.addEventListener("resize", resizeCanvas);
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById('overlay').hidden = true;
+        resizeCanvas();
+    }, 500);
+});

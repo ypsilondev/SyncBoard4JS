@@ -1,6 +1,8 @@
 const clone = (obj) => Object.assign({}, obj);
+/*
 
 let pos = {x: 0, y: 0, p: 1};
+let previousMousePos = {x: 0, y: 0};
 let history = {};
 
 let currentLine = {
@@ -14,25 +16,25 @@ let currentLine = {
     points: []
 };
 
-document.addEventListener('mousemove', draw);
-document.addEventListener('mousedown', setPosition);
-document.addEventListener('mouseenter', setPosition);
+canvas.addEventListener('mousemove', onMouseOrPointerMove);
+canvas.addEventListener('mousedown', setPosition);
+canvas.addEventListener('mouseenter', setPosition);
 
-document.addEventListener('mousedown', startLine);
-document.addEventListener('mouseup', endLine);
+canvas.addEventListener('mousedown', startLine);
+canvas.addEventListener('mouseup', endLine);
 
-document.addEventListener('pointermove', draw);
-document.addEventListener('pointerdown', setPosition);
-document.addEventListener('pointerenter', setPosition);
+canvas.addEventListener('pointermove', onMouseOrPointerMove);
+canvas.addEventListener('pointerdown', setPosition);
+canvas.addEventListener('pointerenter', setPosition);
 
-document.addEventListener('pointerdown', startLine);
-document.addEventListener('pointerup', endLine);
+canvas.addEventListener('pointerdown', startLine);
+canvas.addEventListener('pointerup', endLine);
 
 function setPosition(e) {
     paintLine(currentLine);
     let rect = canvas.getBoundingClientRect();
-    pos.x = e.clientX - rect.left;
-    pos.y = e.clientY - rect.top;
+    pos.x = (e.clientX - rect.left) * scale;
+    pos.y = (e.clientY - rect.top) * scale;
 }
 
 function guid() {
@@ -40,38 +42,43 @@ function guid() {
         let p = (Math.random().toString(16) + "000000000").substr(2, 8);
         return s ? "-" + p.substr(0, 4) + "-" + p.substr(4, 4) : p;
     }
-
     return _p8() + _p8(true) + _p8(true) + _p8();
 }
 
-function startLine(e) {
+function startLine() {
     currentLine.guid = guid();
     currentLine.points = [clone(pos)];
-    clearCanvas();
-    paintHistory();
 }
 
-function endLine(e) {
+function endLine() {
     currentLine.points.push(clone(pos));
     socket.emit("sync", [currentLine]);
     history[currentLine.guid] = clone(currentLine);
-    if (e.pointerType !== undefined && e.pointerType === "touch") {
-        clearCanvas();
-        paintHistory();
+}
+
+function onMouseOrPointerMove(e) {
+    if (e.buttons !== 1) {
+        // nothing
+    } else if (drawingMode || e.pointerType === "pen") {
+        draw(e);
+    } else {
+        translateCanvas(e);
     }
+
+    previousMousePos.x = e.x;
+    previousMousePos.y = e.y;
 }
 
 function draw(e) {
-    if (e.buttons !== 1) return;
     if (pos.x < 0 || pos.y < 0 || pos.x > canvas.offsetWidth || pos.y > canvas.offsetHeight) return;
 
-    /*
     if (e.pressure !== undefined && e.pressure > 0) {
-        pos.p = e.pressure * 2;
+        pos.p = 0.5 + e.pressure * 1.5;
     } else {
         pos.p = 1;
     }
-    */
+
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
     currentLine.points.push(clone(pos));
 
@@ -88,6 +95,10 @@ function draw(e) {
     ctx.stroke(); // draw it!
 }
 
+function translateCanvas(e) {
+
+}
+
 function clearCanvas() {
     ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
 }
@@ -99,7 +110,7 @@ function paintHistory() {
 }
 
 function paintLine(line) {
-    if (line == undefined) return;
+    if (line === undefined) return;
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.strokeStyle = `rgba(${line.color.R}, ${line.color.G}, ${line.color.B}, ${line.color.A})`;
@@ -117,3 +128,4 @@ function paintLine(line) {
         lastPos = point;
     }
 }
+*/

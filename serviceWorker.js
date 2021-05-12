@@ -3,12 +3,12 @@ const assets = [
     ".",
     "index.html",
     "css/halfmoon-variables.min.css",
-    "js/halfmoon.min.js",
-    "js/socket.io.min.js",
-    "js/socket.io.min.js.map",
-    "js/app.js",
-    "js/socket.js",
-    "js/sync.js",
+    "js/res/halfmoon.min.js",
+    "js/res/socket.io.min.js",
+    "js/res/socket.io.min.js.map",
+    "js/app/app.js",
+    "js/app/socket.js",
+    "js/app/sync.js",
     "images/icons/internet.svg",
     "images/icons/icon-512x512.png"
 ]
