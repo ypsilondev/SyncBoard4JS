@@ -10,10 +10,14 @@ function connect() {
         action: "join",
         payload: room,
     }));
+    clearCanvas();
+    history = {};
 }
 
 function create() {
     socket.emit("cmd", JSON.stringify({action: "create"}))
+    clearCanvas();
+    history = {};
 }
 
 function status(msg, failed) {
@@ -49,6 +53,55 @@ function resizeCanvas() {
     // ...then set the internal size to match
     canvas.width  = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
+}
+
+function getHistory() {
+    let result = [];
+    for (let guid in Object.keys(history))
+        result.push(history[guid]);
+    return result;
+}
+
+function replaceHistory(newHistory) {
+    history = {};
+    for (let line of newHistory)
+        history[line.guid] = line;
+    clearCanvas();
+    paintHistory();
+}
+
+function urlReachable(url, callback) {
+    let request = new XMLHttpRequest;
+    request.open('GET', url, true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    request.setRequestHeader('Accept', '*/*');
+    request.onprogress = function(event) {
+        let status = event.target.status;
+        let statusFirstNumber = (status).toString()[0];
+        switch (statusFirstNumber) {
+            case '2':
+                request.abort();
+                return callback(true);
+            default:
+                request.abort();
+                return callback(false);
+        }
+    }
+    request.send('');
+}
+
+function forceUpdate() {
+    urlReachable(location.toString(), reachable => {
+        if (!reachable) {
+            errorAlert(`URL '${location.toString()}' is unreachable`);
+        } else if (confirm("Are you sure you want to update the page?")) {
+            navigator.serviceWorker.ready.then(registration => {
+                if (registration.active) {
+                    registration.active.postMessage("clear-cache");
+                }
+            }).then(() => window.location.reload());
+        }
+    })
 }
 
 window.addEventListener('resize', resizeCanvas);

@@ -16,15 +16,26 @@ const assets = [
 self.addEventListener("install", installEvent => {
     installEvent.waitUntil(
         caches.open(cacheID).then(cache => {
-            cache.addAll(assets)
+            cache.addAll(assets).then();
         })
     )
-})
+});
 
 self.addEventListener("fetch", fetchEvent => {
-    fetchEvent.respondWith(
-        caches.match(fetchEvent.request).then(res => {
-            return res || fetch(fetchEvent.request)
-        })
-    )
-})
+    fetchEvent.respondWith(async function() {
+        try {
+            return await fetch(fetchEvent.request);
+        } catch (err) {
+            return caches.match(fetchEvent.request);
+        }
+    }());
+});
+
+self.addEventListener("message", messageEvent => {
+    if (messageEvent.data === "clear-cache") {
+        caches.keys().then(function (names) {
+            for (let name of names)
+                caches.delete(name).then();
+        });
+    }
+});

@@ -5,9 +5,9 @@ let history = {};
 
 let currentLine = {
     color: {
-        R: 127,
+        R: 0,
         G: 0,
-        B: 255,
+        B: 0,
         A: 255
     },
     guid: "",
@@ -47,7 +47,7 @@ function guid() {
 function startLine(e) {
     currentLine.guid = guid();
     currentLine.points = [clone(pos)];
-    clear();
+    clearCanvas();
     paintHistory();
 }
 
@@ -56,13 +56,14 @@ function endLine(e) {
     socket.emit("sync", [currentLine]);
     history[currentLine.guid] = clone(currentLine);
     if (e.pointerType !== undefined && e.pointerType === "touch") {
-        clear();
+        clearCanvas();
         paintHistory();
     }
 }
 
 function draw(e) {
     if (e.buttons !== 1) return;
+    if (pos.x < 0 || pos.y < 0 || pos.x > canvas.offsetWidth || pos.y > canvas.offsetHeight) return;
 
     /*
     if (e.pressure !== undefined && e.pressure > 0) {
@@ -87,7 +88,7 @@ function draw(e) {
     ctx.stroke(); // draw it!
 }
 
-function clear() {
+function clearCanvas() {
     ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
 }
 

@@ -17,7 +17,7 @@ socket.on("cmd", (data) => {
         }
     } else if (data.hasOwnProperty("action")) {
         if (data.action === "sendBoard") {
-            socket.emit("init-sync", history);
+            socket.emit("init-sync", getHistory());
         }
     } else if (data.hasOwnProperty("token")) {
         room = data.token;
@@ -27,7 +27,7 @@ socket.on("cmd", (data) => {
 });
 
 socket.on("init-sync", (data) => {
-    history = data;
+    replaceHistory(data);
 })
 
 socket.on("sync", (data) => {
@@ -43,7 +43,7 @@ socket.on("erase", (data) => {
     for (let guid of data) {
         history[guid] = undefined;
     }
-    clear();
+    clearCanvas();
     paintHistory();
 });
 
