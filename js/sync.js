@@ -1,52 +1,5 @@
 const clone = (obj) => Object.assign({}, obj);
 
-const socket = io(baseURL);
-
-socket.on("connect", () => {
-    if (socket.disconnected) {
-        alert("Could not connect to the server, retrying...");
-    } else {
-        let room = prompt("enter room id");
-        console.log(room);
-        document.getElementById('room').innerText = room;
-        socket.emit("cmd", JSON.stringify({
-            action: "join",
-            payload: room,
-        }));
-    }
-});
-
-socket.on("cmd", (data) => {
-    console.log(data);
-    if (data.success) {
-
-    } else {
-        status("could not connect to room")
-    }
-});
-
-socket.on("sync", (data) => {
-    for (let line of data) {
-        console.log(line);
-        history[line.guid] = line;
-        paintLine(line);
-    }
-});
-
-socket.on("erase", (data) => {
-    console.log(data);
-    for (let guid of data) {
-        history[guid] = undefined;
-    }
-    clear();
-    paintHistory();
-})
-
-socket.connect();
-
-let canvas = document.getElementById('canvas');
-let ctx = canvas.getContext('2d');
-
 let pos = {x: 0, y: 0, p: 1};
 let history = {};
 
@@ -119,7 +72,6 @@ function draw(e) {
     }
     */
 
-    console.log(pos);
     currentLine.points.push(clone(pos));
 
     ctx.beginPath();
@@ -163,27 +115,4 @@ function paintLine(line) {
         ctx.stroke();
         lastPos = point;
     }
-}
-
-function status(msg, failed) {
-    let status = document.getElementById('status');
-    status.innerText = msg;
-    if (failed) {
-        status.style.background = "#ff3827";
-        status.style.color = "#ffffff";
-        status.style.fontWeight = "bold";
-    } else {
-        status.style.background = "unset";
-        status.style.color = "unset";
-        status.style.fontWeight = "unset";
-    }
-}
-
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function() {
-        navigator.serviceWorker
-            .register("serviceWorker.js")
-            .then(res => console.log("service worker registered"))
-            .catch(err => console.log("service worker not registered", err))
-    })
 }

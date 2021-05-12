@@ -1,4 +1,4 @@
-const staticDevCoffee = "syncboard4js-pwa-57483925"
+const cacheID = "syncboard4js-pwa-234"
 const assets = [
     ".",
     "index.html",
@@ -6,12 +6,16 @@ const assets = [
     "js/halfmoon.min.js",
     "js/socket.io.min.js",
     "js/socket.io.min.js.map",
-    "sync.js"
+    "js/app.js",
+    "js/socket.js",
+    "js/sync.js",
+    "images/icons/internet.svg",
+    "images/icons/icon-512x512.png"
 ]
 
 self.addEventListener("install", installEvent => {
     installEvent.waitUntil(
-        caches.open(staticDevCoffee).then(cache => {
+        caches.open(cacheID).then(cache => {
             cache.addAll(assets)
         })
     )
