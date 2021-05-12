@@ -3,18 +3,26 @@ const clone = (obj) => Object.assign({}, obj);
 const socket = io(baseURL);
 
 socket.on("connect", () => {
-    console.log(socket.disconnected); // false
-    let room = prompt("enter room id");
-    console.log(room);
-    document.getElementById('room').innerText = room;
-    socket.emit("cmd", JSON.stringify({
-        action: "join",
-        payload: room,
-    }));
+    if (socket.disconnected) {
+        alert("Could not connect to the server, retrying...");
+    } else {
+        let room = prompt("enter room id");
+        console.log(room);
+        document.getElementById('room').innerText = room;
+        socket.emit("cmd", JSON.stringify({
+            action: "join",
+            payload: room,
+        }));
+    }
 });
 
 socket.on("cmd", (data) => {
     console.log(data);
+    if (data.success) {
+
+    } else {
+        status("could not connect to room")
+    }
 });
 
 socket.on("sync", (data) => {
@@ -39,7 +47,7 @@ socket.connect();
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 
-let pos = { x: 0, y: 0, p: 1 };
+let pos = {x: 0, y: 0, p: 1};
 let history = {};
 
 let currentLine = {
@@ -49,7 +57,7 @@ let currentLine = {
         B: 255,
         A: 255
     },
-    guid: "hurensohn",
+    guid: "",
     points: []
 };
 
@@ -76,9 +84,10 @@ function setPosition(e) {
 
 function guid() {
     function _p8(s) {
-        let p = (Math.random().toString(16)+"000000000").substr(2,8);
-        return s ? "-" + p.substr(0,4) + "-" + p.substr(4,4) : p ;
+        let p = (Math.random().toString(16) + "000000000").substr(2, 8);
+        return s ? "-" + p.substr(0, 4) + "-" + p.substr(4, 4) : p;
     }
+
     return _p8() + _p8(true) + _p8(true) + _p8();
 }
 
@@ -156,4 +165,25 @@ function paintLine(line) {
     }
 }
 
-console.log("anus");
+function status(msg, failed) {
+    let status = document.getElementById('status');
+    status.innerText = msg;
+    if (failed) {
+        status.style.background = "#ff3827";
+        status.style.color = "#ffffff";
+        status.style.fontWeight = "bold";
+    } else {
+        status.style.background = "unset";
+        status.style.color = "unset";
+        status.style.fontWeight = "unset";
+    }
+}
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function() {
+        navigator.serviceWorker
+            .register("serviceWorker.js")
+            .then(res => console.log("service worker registered"))
+            .catch(err => console.log("service worker not registered", err))
+    })
+}
